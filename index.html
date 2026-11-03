@@ -1,0 +1,132 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>MY AMIN</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#211a17;color:#fff;font-family:Arial,sans-serif}
+.game{position:relative;width:100%;max-width:480px;height:100dvh;margin:auto;overflow:hidden;background:linear-gradient(#9b7964,#44352e)}
+.scene{position:absolute;inset:0;background-image:url("amin-screen.png");background-position:center;background-size:100% 100%}
+.tap{position:absolute;border:0;background:transparent;cursor:pointer}
+.panel{display:none;position:absolute;inset:0;background:rgba(24,17,13,.94);padding:28px 20px;overflow:auto;text-align:center;z-index:5}
+.panel.show{display:block}
+h2{color:#f8d49a;margin-top:55px}
+.action{display:block;width:100%;padding:15px;margin:12px 0;border:0;border-radius:16px;background:#f3d6a6;color:#37281d;font-size:17px;font-weight:bold}
+.close{position:absolute;top:20px;right:20px;background:#fff;border:0;border-radius:50%;width:42px;height:42px;font-size:24px}
+#message{font-size:19px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="game">
+<div class="scene"></div>
+
+<button class="tap" style="left:80%;top:15%;width:20%;height:10%" onclick="openPanel('Коран')"></button>
+<button class="tap" style="left:80%;top:26%;width:20%;height:10%" onclick="openPanel('Намаз')"></button>
+<button class="tap" style="left:80%;top:38%;width:20%;height:10%" onclick="openPanel('Дуа')"></button>
+<button class="tap" style="left:80%;top:49%;width:20%;height:10%" onclick="openPanel('Азкары')"></button>
+<button class="tap" style="left:80%;top:61%;width:20%;height:10%" onclick="openPanel('Суры')"></button>
+<button class="tap" style="left:80%;top:72%;width:20%;height:9%" onclick="openPanel('Мини-игры')"></button>
+
+<button class="tap" style="left:0;top:86%;width:20%;height:14%" onclick="openPanel('Кормить')"></button>
+<button class="tap" style="left:20%;top:86%;width:20%;height:14%" onclick="openPanel('Купать')"></button>
+<button class="tap" style="left:40%;top:86%;width:20%;height:14%" onclick="openPanel('Спать')"></button>
+<button class="tap" style="left:60%;top:86%;width:20%;height:14%" onclick="openPanel('Одежда')"></button>
+<button class="tap" style="left:80%;top:86%;width:20%;height:14%" onclick="openPanel('Комната')"></button>
+<button class="tap" style="left:0;top:73%;width:22%;height:11%" onclick="recordVoice()"></button>
+
+<div id="panel" class="panel">
+<button class="close" onclick="closePanel()">×</button>
+<h2 id="heading"></h2>
+<div id="message"></div>
+<button class="action" onclick="closePanel()">Вернуться к Амину</button>
+</div>
+</div>
+
+<script>
+const panel=document.getElementById("panel");
+const heading=document.getElementById("heading");
+const message=document.getElementById("message");
+
+function say(text){
+if(!("speechSynthesis" in window))return;
+speechSynthesis.cancel();
+const voice=new SpeechSynthesisUtterance(text);
+voice.lang="ru-RU";
+voice.rate=.85;
+speechSynthesis.speak(voice);
+}
+
+function openPanel(name){
+heading.textContent=name;
+let content="";
+if(name==="Кормить"){
+content="🍎 Амин готов кушать!<br>بِسْمِ اللَّهِ<br>Бисмиллях<br><br>После еды: Альхамдулиллях!";
+say("Бисмиллях");
+}
+else if(name==="Коран"||name==="Суры"){
+content="📖 Здесь будут короткие суры с проверенными аудиозаписями чтецов.";
+}
+else if(name==="Намаз"){
+content="🕌 Здесь Амин будет показывать движения намаза и помогать изучать молитву.";
+}
+else if(name==="Дуа"){
+content="🤲 Перед едой: Бисмиллях.<br>После еды: Альхамдулиллях.";
+}
+else if(name==="Азкары"){
+content="🌙 Субханаллах<br>Альхамдулиллях<br>Аллаху Акбар";
+}
+else if(name==="Купать"){
+content="🛁 Время купаться!";
+}
+else if(name==="Спать"){
+content="🌙 Спокойной ночи, Амин!";
+}
+else if(name==="Одежда"){
+content="👕 Здесь появится гардероб Амина.";
+}
+else if(name==="Комната"){
+content="🏡 Здесь можно будет менять комнату.";
+}
+else{
+content="🎮 Здесь появятся исламские мини-игры.";
+}
+message.innerHTML=content;
+panel.classList.add("show");
+}
+
+function closePanel(){panel.classList.remove("show")}
+
+let recorder;
+let chunks=[];
+async function recordVoice(){
+try{
+if(recorder&&recorder.state==="recording"){
+recorder.stop();
+return;
+}
+const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+chunks=[];
+recorder=new MediaRecorder(stream);
+recorder.ondataavailable=e=>chunks.push(e.data);
+recorder.onstop=()=>{
+const blob=new Blob(chunks,{type:recorder.mimeType});
+const url=URL.createObjectURL(blob);
+const audio=new Audio(url);
+audio.play();
+audio.onended=()=>{
+URL.revokeObjectURL(url);
+stream.getTracks().forEach(t=>t.stop());
+};
+};
+recorder.start();
+alert("Говори! Нажми на микрофон ещё раз, чтобы Амин повторил.");
+}catch(e){
+alert("Разреши доступ к микрофону в Safari.");
+}
+}
+</script>
+</body>
+</html>
