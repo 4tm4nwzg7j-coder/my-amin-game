@@ -63,8 +63,7 @@ function openPanel(name){
 heading.textContent=name;
 let content="";
 if(name==="Кормить"){
-content="🍎 Амин готов кушать!<br>بِسْمِ اللَّهِ<br>Бисмиллях<br><br>После еды: Альхамдулиллях!";
-say("Бисмиллях");
+content="🍎 Амин готов кушать!<br>بِسْمِ اللَّهِ<br>Бисмиллях<br><br>После еды: new Audio("bismillah.mp3").play();
 }
 else if(name==="Коран"||name==="Суры"){
 content="📖 Здесь будут короткие суры с проверенными аудиозаписями чтецов.";
